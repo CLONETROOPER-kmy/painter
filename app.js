@@ -1,16 +1,32 @@
 const canvas = document.getElementById("jsCanvas");
 const ctx = canvas.getContext("2d");
+const colors = document.getElementsByClassName("jsColor");
+const range = document.getElementById("jsRange");
+const mode = document.getElementById("jsMode");
+const save = document.getElementById("jsSave");
 
-canvas.width = 700;
-canvas.height = 700;
+const INITIAL_COLOR = "black";
+const CANVAS_SIZE = 700;
 
-ctx.strokeStyle = "black";
+canvas.width = CANVAS_SIZE;
+canvas.height = CANVAS_SIZE;
+
+ctx.fillStyle = "white";
+ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+ctx.strokeStyle = INITIAL_COLOR;
+ctx.fillStyle = INITIAL_COLOR;
 ctx.lineWidth = 2.5;
 
 let painting = false;
+let filling = true;
 
 function startPainting() {
-  painting = true;
+  if (filling === false) {
+    painting = true;
+  } else {
+    painting = false;
+  }
 }
 
 function stopPainting() {
@@ -29,8 +45,43 @@ function mouseMove(event) {
   }
 }
 
-function mouseDown(event) {
-  painting = true;
+function changeColor(event) {
+  const color = event.target.style.backgroundColor;
+  ctx.strokeStyle = color;
+  ctx.fillStyle = color;
+}
+
+function handleRangeChange(event) {
+  const size = event.target.value;
+  ctx.lineWidth = size;
+}
+
+function handleModeClick() {
+  if (filling === true) {
+    filling = false;
+    mode.innerText = "Paint";
+  } else {
+    filling = true;
+    mode.innerText = "Fill";
+  }
+}
+
+function handleCanvasClick() {
+  if (filling) {
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+  }
+}
+
+function handleRightclick(evnet) {
+  event.preventDefault;
+}
+
+function drawingSave() {
+  const image = canvas.toDataURL("image/png");
+  const link = document.createElement("a");
+  link.href = image;
+  link.download = prompt("저장할 그림 파일의 이름을 지어주세요");
+  link.click();
 }
 
 if (canvas) {
@@ -38,4 +89,20 @@ if (canvas) {
   canvas.addEventListener("mousedown", startPainting);
   canvas.addEventListener("mouseup", stopPainting);
   canvas.addEventListener("mouseleave", stopPainting);
+  canvas.addEventListener("click", handleCanvasClick);
+  canvas.addEventListener("contextmenu", handleRightclick);
+}
+
+Array.from(colors).forEach((color) => color.addEventListener("click", changeColor));
+
+if (range) {
+  range.addEventListener("input", handleRangeChange);
+}
+
+if (mode) {
+  mode.addEventListener("click", handleModeClick);
+}
+
+if (save) {
+  save.addEventListener("click", drawingSave);
 }
